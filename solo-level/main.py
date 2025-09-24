@@ -91,6 +91,13 @@ class SoloLevelingApp(App):
         # The UI will be refreshed in on_start
         print("Data loaded from database.")
 
+    def on_tab_switch(self, current_tab):
+        """Called from the .kv file when the user switches tabs."""
+        # This method is required to prevent the AttributeError.
+        # You can add logic here if you need to do something on every tab switch.
+        if current_tab:
+            print(f"Switched to tab: {current_tab.text}")
+
     # -------------------------
     # Task & State Management
     # -------------------------

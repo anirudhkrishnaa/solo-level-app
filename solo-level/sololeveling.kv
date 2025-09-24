@@ -1,39 +1,6 @@
+# C:/Anirudh/solo-level/sololeveling.kv
+
 #:import Factory kivy.factory.Factory
-
-<TaskItem>:
-    size_hint_y: None
-    height: '48dp'
-    padding: '10dp'
-    spacing: '10dp'
-
-    CheckBox:
-        size_hint_x: None
-        width: '48dp'
-        active: root.completed
-        on_active: root.dispatch('on_toggle_complete', self.active)
-
-    BoxLayout:
-        orientation: 'vertical'
-        Label:
-            text: root.title
-            halign: 'left'
-            valign: 'middle'
-            text_size: self.size
-        Label:
-            text: f"{root.points} points"
-            font_size: '12sp'
-            color: 0.7, 0.7, 0.7, 1
-            halign: 'left'
-            valign: 'middle'
-            text_size: self.size
-
-    Button:
-        text: 'X'
-        size_hint_x: None
-        width: '48dp'
-        on_press: root.dispatch('on_delete_task')
-
-# C:/Anirudh/solo_level/sololeveling.kv
 
 # Define the custom TaskList class based on RecycleView
 <TaskList@RecycleView>:
@@ -95,7 +62,7 @@
     padding: dp(10)
     spacing: dp(10)
 
-    # --- Top Bar: Scoreboard and Undo/Redo ---
+    # --- Top Bar: Scoreboard ---
     BoxLayout:
         size_hint_y: None
         height: dp(48)
@@ -103,12 +70,6 @@
             id: scoreboard_label
             text: "Total Points: 0"
             font_size: '20sp'
-        Button:
-            text: "Undo"
-            on_press: app.undo()
-        Button:
-            text: "Redo"
-            on_press: app.redo()
 
     # --- Main Content: Tabbed panel for days ---
     TabbedPanel:
