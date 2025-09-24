@@ -1,0 +1,166 @@
+#:import Factory kivy.factory.Factory
+
+<TaskItem>:
+    size_hint_y: None
+    height: '48dp'
+    padding: '10dp'
+    spacing: '10dp'
+
+    CheckBox:
+        size_hint_x: None
+        width: '48dp'
+        active: root.completed
+        on_active: root.dispatch('on_toggle_complete', self.active)
+
+    BoxLayout:
+        orientation: 'vertical'
+        Label:
+            text: root.title
+            halign: 'left'
+            valign: 'middle'
+            text_size: self.size
+        Label:
+            text: f"{root.points} points"
+            font_size: '12sp'
+            color: 0.7, 0.7, 0.7, 1
+            halign: 'left'
+            valign: 'middle'
+            text_size: self.size
+
+    Button:
+        text: 'X'
+        size_hint_x: None
+        width: '48dp'
+        on_press: root.dispatch('on_delete_task')
+
+# C:/Anirudh/solo_level/sololeveling.kv
+
+# Define the custom TaskList class based on RecycleView
+<TaskList@RecycleView>:
+    viewclass: 'TaskItem'
+    RecycleBoxLayout:
+        default_size: None, dp(56)
+        default_size_hint: 1, None
+        size_hint_y: None
+        height: self.minimum_height
+        orientation: 'vertical'
+        spacing: dp(2)
+
+# Define the appearance and behavior of a single task in the list
+<TaskItem>:
+    orientation: 'horizontal'
+    size_hint_y: None
+    height: dp(56)
+    spacing: dp(10)
+    padding: dp(10)
+
+    # --- Left side: Checkbox and Title ---
+    BoxLayout:
+        size_hint_x: 0.8
+        spacing: dp(10)
+        CheckBox:
+            size_hint_x: None
+            width: dp(48)
+            active: root.completed
+            on_active: root.dispatch('on_toggle_complete', self.active)
+        Label:
+            text: root.title
+            halign: 'left'
+            valign: 'middle'
+            text_size: self.width, None
+            # Strikethrough text when completed
+            strikethrough: root.completed
+            color: (0.5, 0.5, 0.5, 1) if root.completed else (1, 1, 1, 1)
+
+    # --- Right side: Points and Delete Button ---
+    BoxLayout:
+        size_hint_x: 0.2
+        orientation: 'horizontal'
+        spacing: dp(5)
+        Label:
+            text: f"{root.points} pts"
+            size_hint_x: 0.7
+            color: (0.6, 0.8, 1, 1) # A nice blue for points
+        Button:
+            text: 'X'
+            size_hint_x: 0.3
+            font_size: '20sp'
+            background_color: (0.8, 0.2, 0.2, 1) # Red for delete
+            on_press: root.dispatch('on_delete_task')
+
+
+# Define the main layout of the entire application window
+<MainLayout>:
+    orientation: 'vertical'
+    padding: dp(10)
+    spacing: dp(10)
+
+    # --- Top Bar: Scoreboard and Undo/Redo ---
+    BoxLayout:
+        size_hint_y: None
+        height: dp(48)
+        Label:
+            id: scoreboard_label
+            text: "Total Points: 0"
+            font_size: '20sp'
+        Button:
+            text: "Undo"
+            on_press: app.undo()
+        Button:
+            text: "Redo"
+            on_press: app.redo()
+
+    # --- Main Content: Tabbed panel for days ---
+    TabbedPanel:
+        id: main_tabs
+        do_default_tab: False
+        on_current_tab: app.on_tab_switch(self.current_tab)
+
+        TabbedPanelItem:
+            text: 'Monday'
+            TaskList:
+                id: monday_task_list
+        TabbedPanelItem:
+            text: 'Tuesday'
+            TaskList:
+                id: tuesday_task_list
+        TabbedPanelItem:
+            text: 'Wednesday'
+            TaskList:
+                id: wednesday_task_list
+        TabbedPanelItem:
+            text: 'Thursday'
+            TaskList:
+                id: thursday_task_list
+        TabbedPanelItem:
+            text: 'Friday'
+            TaskList:
+                id: friday_task_list
+        TabbedPanelItem:
+            text: 'Saturday'
+            TaskList:
+                id: saturday_task_list
+        TabbedPanelItem:
+            text: 'Sunday'
+            TaskList:
+                id: sunday_task_list
+
+    # --- Bottom Bar: Input fields and Add button ---
+    BoxLayout:
+        size_hint_y: None
+        height: dp(48)
+        spacing: dp(5)
+        TextInput:
+            id: task_title_input
+            hint_text: "Enter task title..."
+            multiline: False
+        TextInput:
+            id: task_points_input
+            hint_text: "Pts"
+            size_hint_x: 0.2
+            input_filter: 'int'
+            multiline: False
+        Button:
+            text: "Add Task"
+            size_hint_x: 0.3
+            on_press: app.add_task()
