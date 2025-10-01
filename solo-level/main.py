@@ -8,7 +8,8 @@ from kivy.clock import Clock
 from kivy.uix.recycleview import RecycleView
 
 # --- Database Integration ---
-from models import Task, Category
+# Make sure to import the new QuickNote model
+from models import Task, Category, QuickNote
 from database import SessionLocal, create_db_and_tables
 
 
@@ -61,10 +62,14 @@ class SoloLevelingApp(App):
     def on_start(self):
         """Load data from the database and populate the UI."""
         self.load_data_from_db()
+        # Add calls to load notes and refresh tasks
+        Clock.schedule_once(lambda dt: self.load_notes())
         Clock.schedule_once(lambda dt: self.refresh_all_task_lists())
 
     def on_stop(self):
         """Close the database session when the app closes."""
+        # Save notes before closing the app
+        self.save_notes()
         if self.db_session:
             self.db_session.close()
 
@@ -92,11 +97,56 @@ class SoloLevelingApp(App):
         print("Data loaded from database.")
 
     def on_tab_switch(self, current_tab):
-        """Called from the .kv file when the user switches tabs."""
-        # This method is required to prevent the AttributeError.
-        # You can add logic here if you need to do something on every tab switch.
-        if current_tab:
-            print(f"Switched to tab: {current_tab.text}")
+        """
+        Shows or hides the 'Add Task' bar based on the selected tab.
+        """
+        add_bar = self.root.ids.add_task_bar
+        if not current_tab:
+            return
+
+        # If the current tab is 'Quick Notes', hide the bar.
+        if current_tab.text == 'Quick Notes':
+            add_bar.opacity = 0
+            add_bar.size_hint_y = None
+            add_bar.height = 0
+        # For all other tabs, show the bar.
+        else:
+            add_bar.opacity = 1
+            add_bar.size_hint_y = None
+            add_bar.height = '48dp' # Restore original height
+
+        print(f"Switched to tab: {current_tab.text}")
+
+    # -------------------------
+    # Quick Notes Management (NEW)
+    # -------------------------
+    def load_notes(self):
+        """Loads notes from the DB and displays them in the TextInput."""
+        note = self.db_session.query(QuickNote).first()
+        if note:
+            self.root.ids.quick_notes_input.text = note.content
+        print("Quick Notes loaded.")
+
+    def save_notes(self):
+        """Saves the content of the TextInput to the database."""
+        notes_text = self.root.ids.quick_notes_input.text
+        note = self.db_session.query(QuickNote).first()
+
+        if note:
+            # Update existing note
+            note.content = notes_text
+        else:
+            # Create a new note entry if one doesn't exist
+            new_note = QuickNote(content=notes_text)
+            self.db_session.add(new_note)
+
+        self.db_session.commit()
+        print("Quick Notes saved.")
+
+    def clear_notes(self):
+        """Clears the notes from the text input and the database."""
+        self.root.ids.quick_notes_input.text = ""
+        self.save_notes() # Save the empty string to the DB
 
     # -------------------------
     # Task & State Management

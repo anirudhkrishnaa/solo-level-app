@@ -1,10 +1,15 @@
 # models.py
-from sqlalchemy import Column, Integer, String, Boolean, ForeignKey
+from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, Text
 from sqlalchemy.orm import relationship, declarative_base
 
 # This Base class is what our data models will inherit from.
 Base = declarative_base()
 
+class QuickNote(Base):
+    __tablename__ = "quick_notes"
+
+    id = Column(Integer, primary_key=True, index=True)
+    content = Column(Text, default="")
 
 class Category(Base):
     """Represents a group of tasks in the database."""
