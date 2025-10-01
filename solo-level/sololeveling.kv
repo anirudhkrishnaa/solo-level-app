@@ -121,22 +121,6 @@
                     foreground_color: (0.9, 0.9, 0.9, 1)
                     font_size: '16sp'
 
-                BoxLayout:
-                    size_hint_y: None
-                    height: '48dp'
-                    spacing: 10
-
-                    Button:
-                        text: 'Save Notes'
-                        on_press: app.save_notes()
-                        font_size: '16sp'
-
-                    Button:
-                        text: 'Clear'
-                        on_press: app.clear_notes()
-                        background_color: (0.8, 0.2, 0.2, 1) # A reddish color for caution
-                        font_size: '16sp'
-
     # --- Bottom Bar: Input fields and Add button ---
     BoxLayout:
         id: add_task_bar #

@@ -65,6 +65,8 @@ class SoloLevelingApp(App):
         # Add calls to load notes and refresh tasks
         Clock.schedule_once(lambda dt: self.load_notes())
         Clock.schedule_once(lambda dt: self.refresh_all_task_lists())
+        # --- NEW: Set up auto-save for notes every 5 seconds ---
+        Clock.schedule_interval(lambda dt: self.save_notes(), 5)
 
     def on_stop(self):
         """Close the database session when the app closes."""
@@ -129,24 +131,28 @@ class SoloLevelingApp(App):
 
     def save_notes(self):
         """Saves the content of the TextInput to the database."""
+        # Check if root widget is fully initialized
+        if not self.root or 'quick_notes_input' not in self.root.ids:
+            return
+
         notes_text = self.root.ids.quick_notes_input.text
         note = self.db_session.query(QuickNote).first()
 
+        # Only commit if there's a change to avoid unnecessary DB writes
+        if note and note.content == notes_text:
+            return # No changes to save
+
         if note:
-            # Update existing note
             note.content = notes_text
         else:
-            # Create a new note entry if one doesn't exist
+            # Create a new note if it's the first time and there's text
+            if not notes_text:
+                return # Don't create an empty note entry
             new_note = QuickNote(content=notes_text)
             self.db_session.add(new_note)
 
         self.db_session.commit()
-        print("Quick Notes saved.")
-
-    def clear_notes(self):
-        """Clears the notes from the text input and the database."""
-        self.root.ids.quick_notes_input.text = ""
-        self.save_notes() # Save the empty string to the DB
+        print("Quick Notes auto-saved.")
 
     # -------------------------
     # Task & State Management
