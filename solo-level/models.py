@@ -42,6 +42,8 @@ class Task(Base):
 
     # This links this Task back to its parent Category.
     category = relationship("Category", back_populates="tasks")
+    parent_id = Column(Integer, ForeignKey("tasks.id"), nullable=True)
+    subtasks = relationship("Task", backref='parent', remote_side='Task.id')
 
     def __repr__(self):
         """Provide a developer-friendly representation of the Task object."""

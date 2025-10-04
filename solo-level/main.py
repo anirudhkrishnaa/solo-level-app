@@ -29,19 +29,25 @@ class TaskItem(RecycleDataViewBehavior, BoxLayout):
 
 class DraggableTaskItem(DragBehavior, TaskItem):
     def on_touch_up(self, touch):
-        super().on_touch_up(touch)
-        if self.collide_point(*touch.pos):
-            self.parent.parent.update_task_order()
+        result = super().on_touch_up(touch)
+        # Find the parent TaskList (RecycleView)
+        parent = self.parent
+        while parent and not isinstance(parent, TaskList):
+            parent = parent.parent
+        if parent and self.collide_point(*touch.pos):
+            parent.update_task_order()
+        return result
 
 class TaskList(RecycleView):
     def update_task_order(self):
-        new_order = [item['task_id'] for item in self.data]
         app = App.get_running_app()
+        # Get the new order of task IDs from the UI
+        new_order = [item['task_id'] for item in self.data]
         for idx, task_id in enumerate(new_order):
             task = app.db_session.query(Task).filter(Task.id == task_id).first()
-            if task:
+            if task and task.priority != idx:
                 task.priority = idx
-        app.db_session.commit()
+        app.db_session.commit()  # Persist the new priorities
         app.refresh_scoreboard()
 
 class MainLayout(BoxLayout):
