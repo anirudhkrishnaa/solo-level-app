@@ -4,7 +4,7 @@
 
 # Define the custom TaskList class based on RecycleView
 <TaskList@RecycleView>:
-    viewclass: 'TaskItem'
+    viewclass: 'DraggableTaskItem'
     RecycleBoxLayout:
         default_size: None, dp(56)
         default_size_hint: 1, None
@@ -14,7 +14,7 @@
         spacing: dp(2)
 
 # Define the appearance and behavior of a single task in the list
-<TaskItem>:
+<DraggableTaskItem@TaskItem>>:
     orientation: 'horizontal'
     size_hint_y: None
     height: dp(56)
@@ -106,8 +106,24 @@
             TaskList:
                 id: sunday_task_list
 
+        # --- ADD THE NEW QUICK NOTES TAB HERE ---
+        TabbedPanelItem:
+            text: 'Quick Notes'
+            BoxLayout:
+                orientation: 'vertical'
+                padding: 10
+                spacing: 10
+
+                TextInput:
+                    id: quick_notes_input
+                    hint_text: 'Write down your thoughts...'
+                    background_color: (0.1, 0.1, 0.1, 1)
+                    foreground_color: (0.9, 0.9, 0.9, 1)
+                    font_size: '16sp'
+
     # --- Bottom Bar: Input fields and Add button ---
     BoxLayout:
+        id: add_task_bar #
         size_hint_y: None
         height: dp(48)
         spacing: dp(5)
