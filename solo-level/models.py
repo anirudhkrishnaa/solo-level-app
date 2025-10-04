@@ -1,48 +1,74 @@
-# models.py
-from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, Text
-from sqlalchemy.orm import relationship, declarative_base
+# C:/Anirudh/solo-level/models.py
 
-# This Base class is what our data models will inherit from.
+from sqlalchemy import (
+    create_engine,
+    Column,
+    Integer,
+    String,
+    Boolean,
+    Text,
+    ForeignKey,
+)
+from sqlalchemy.orm import declarative_base, relationship, Mapped, mapped_column
+from typing import List
+
+# Base class for our models. All model classes will inherit from this.
 Base = declarative_base()
 
-class QuickNote(Base):
-    __tablename__ = "quick_notes"
-
-    id = Column(Integer, primary_key=True, index=True)
-    content = Column(Text, default="")
 
 class Category(Base):
-    """Represents a group of tasks in the database."""
+    """
+    Represents a category for tasks, e.g., 'Monday', 'Tuesday'.
+    """
     __tablename__ = "categories"
 
-    id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, unique=True, index=True, nullable=False)
+    # Using Mapped and mapped_column for modern, type-annotated definitions.
+    id: Mapped[int] = mapped_column(primary_key=True, index=True)
+    name: Mapped[str] = mapped_column(String, unique=True, index=True, nullable=False)
 
-    # This creates the one-to-many relationship.
-    # A Category can have many Tasks.
-    tasks = relationship("Task", back_populates="category")
+    # Establishes a one-to-many relationship with the Task model.
+    # 'cascade' ensures that when a category is deleted, its tasks are also deleted.
+    # 'back_populates' links this relationship to the 'category' attribute in Task.
+    tasks: Mapped[List["Task"]] = relationship(
+        back_populates="category", cascade="all, delete-orphan"
+    )
 
     def __repr__(self):
-        """Provide a developer-friendly representation of the Category object."""
-        return f"<Category id={self.id} name='{self.name}'>"
+        """Provides a developer-friendly string representation of the object."""
+        return f"<Category(id={self.id}, name='{self.name}')>"
 
 
 class Task(Base):
-    """Represents a single to-do item in the database."""
+    """
+    Represents a single task item.
+    """
     __tablename__ = "tasks"
 
-    id = Column(Integer, primary_key=True, index=True)
-    title = Column(String, index=True, nullable=False)
-    points = Column(Integer, default=0)
-    completed = Column(Boolean, default=False)
-    priority = Column(Integer, default=0)
+    id: Mapped[int] = mapped_column(primary_key=True, index=True)
+    title: Mapped[str] = mapped_column(String, nullable=False)
+    points: Mapped[int] = mapped_column(Integer, default=0)
+    completed: Mapped[bool] = mapped_column(Boolean, default=False)
+    priority: Mapped[int] = mapped_column(Integer, default=0) # For ordering
 
-    # This sets up the foreign key to the 'categories' table.
-    category_id = Column(Integer, ForeignKey("categories.id"))
-
-    # This links this Task back to its parent Category.
-    category = relationship("Category", back_populates="tasks")
+    # Establishes a many-to-one relationship with the Category model.
+    category_id: Mapped[int] = mapped_column(ForeignKey("categories.id"), nullable=False)
+    category: Mapped["Category"] = relationship(back_populates="tasks")
 
     def __repr__(self):
-        """Provide a developer-friendly representation of the Task object."""
-        return f"<Task id={self.id} title='{self.title}' points={self.points} completed={self.completed}>"
+        """Provides a developer-friendly string representation of the object."""
+        return f"<Task(id={self.id}, title='{self.title}', completed={self.completed})>"
+
+
+class QuickNote(Base):
+    """
+    Represents a single, persistent quick note.
+    """
+    __tablename__ = "quick_notes"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    # Using Text instead of String for potentially long notes.
+    content: Mapped[str] = mapped_column(Text, default="")
+
+    def __repr__(self):
+        """Provides a developer-friendly string representation of the object."""
+        return f"<QuickNote(id={self.id}, content='{self.content[:30]}...')>"
