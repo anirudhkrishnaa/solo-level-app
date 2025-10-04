@@ -35,6 +35,7 @@ class Task(Base):
     title = Column(String, index=True, nullable=False)
     points = Column(Integer, default=0)
     completed = Column(Boolean, default=False)
+    priority = Column(Integer, default=0)
 
     # This sets up the foreign key to the 'categories' table.
     category_id = Column(Integer, ForeignKey("categories.id"))

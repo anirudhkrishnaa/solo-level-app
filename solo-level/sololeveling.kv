@@ -4,7 +4,7 @@
 
 # Define the custom TaskList class based on RecycleView
 <TaskList@RecycleView>:
-    viewclass: 'TaskItem'
+    viewclass: 'DraggableTaskItem'
     RecycleBoxLayout:
         default_size: None, dp(56)
         default_size_hint: 1, None
@@ -14,7 +14,7 @@
         spacing: dp(2)
 
 # Define the appearance and behavior of a single task in the list
-<TaskItem>:
+<DraggableTaskItem@TaskItem>>:
     orientation: 'horizontal'
     size_hint_y: None
     height: dp(56)
